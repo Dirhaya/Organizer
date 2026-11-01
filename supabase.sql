@@ -1,0 +1,10 @@
+create table if not exists public.events (id uuid primary key, user_id uuid not null references auth.users(id) on delete cascade, payload jsonb not null, updated_at timestamptz not null);
+alter table public.events enable row level security;
+create policy "Own events" on public.events for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+create table if not exists public.documents (id uuid primary key, user_id uuid not null references auth.users(id) on delete cascade, name text not null, path text not null, size bigint not null, created_at timestamptz not null default now());
+alter table public.documents enable row level security;
+create policy "Own documents" on public.documents for all to authenticated using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+insert into storage.buckets (id,name,public,file_size_limit) values ('documents','documents',false,20971520) on conflict (id) do nothing;
+create policy "Read own files" on storage.objects for select to authenticated using (bucket_id='documents' and (storage.foldername(name))[1]=(select auth.uid())::text);
+create policy "Upload own files" on storage.objects for insert to authenticated with check (bucket_id='documents' and (storage.foldername(name))[1]=(select auth.uid())::text);
+create policy "Delete own files" on storage.objects for delete to authenticated using (bucket_id='documents' and (storage.foldername(name))[1]=(select auth.uid())::text);
