@@ -1,4 +1,3 @@
-// Copy your Supabase project URL and publishable (anon) key here.
-// The publishable key is public. Never put a service_role key in this file.
-export const SUPABASE_URL = '';
+// Supabase Project URL and public publishable key. Never use a service_role key here.
+export const SUPABASE_URL = 'https://wvpfeebpujtmqppheqet.supabase.co';
 export const SUPABASE_ANON_KEY = '';
